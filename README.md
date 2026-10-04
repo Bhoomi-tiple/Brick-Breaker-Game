@@ -8,16 +8,16 @@ A simple Brick Breaker game built with Java Swing. Move the paddle to keep the b
 
 ## Run the game
 
-Open a terminal in the project folder and compile the source files:
+Open a terminal in the repository root and compile the source files into the `build` folder:
 
-```bash
-javac Main.java BrickBreaker.java BrickMap.java
+```powershell
+javac -d build Main.java BrickBreaker.java BrickMap.java
 ```
 
 Then start the game:
 
-```bash
-java Main
+```powershell
+java -cp build Main
 ```
 
 The game opens in a maximized window.
