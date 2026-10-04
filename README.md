@@ -1,4 +1,4 @@
-# Brick Breaker
+# Brick Breaker Game
 
 A simple Brick Breaker game built with Java Swing. Move the paddle to keep the ball in play, break all the bricks, and try to get the highest score.
 
