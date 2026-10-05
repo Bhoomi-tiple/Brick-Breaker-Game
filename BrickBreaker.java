@@ -1,3 +1,4 @@
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -22,6 +23,36 @@ public class BrickBreaker extends JPanel implements KeyListener, ActionListener 
     private int delay = 8;
 
     private BrickMap map;
+    private boolean winSoundPlayed = false;
+    private boolean gameOverSoundPlayed = false;
+
+    private void playTone(float frequency, int durationMillis) {
+        try {
+            float sampleRate = 44100f;
+            int totalSamples = (int) (sampleRate * durationMillis / 1000f);
+            byte[] buffer = new byte[totalSamples * 2];
+
+            for (int i = 0; i < totalSamples; i++) {
+                double time = i / sampleRate;
+                double wave = Math.sin(2 * Math.PI * frequency * time);
+                short sample = (short) (wave * 32767 * 0.18);
+
+                buffer[i * 2] = (byte) (sample & 0xFF);
+                buffer[i * 2 + 1] = (byte) ((sample >> 8) & 0xFF);
+            }
+
+            AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
+            SourceDataLine line = AudioSystem.getSourceDataLine(format);
+            line.open(format);
+            line.start();
+            line.write(buffer, 0, buffer.length);
+            line.drain();
+            line.stop();
+            line.close();
+        } catch (Exception e) {
+            Toolkit.getDefaultToolkit().beep();
+        }
+    }
 
     public BrickBreaker() {
 
@@ -74,6 +105,10 @@ public class BrickBreaker extends JPanel implements KeyListener, ActionListener 
         // WIN
         if (totalBricks == 0) {
 
+            if (!winSoundPlayed) {
+                playTone(220f, 250);
+                winSoundPlayed = true;
+            }
             play = false;
             ballDirX = 0;
             ballDirY = 0;
@@ -91,6 +126,10 @@ public class BrickBreaker extends JPanel implements KeyListener, ActionListener 
         // GAME OVER
         if (ballY > panelHeight - 30) {
 
+            if (!gameOverSoundPlayed) {
+                playTone(160f, 300);
+                gameOverSoundPlayed = true;
+            }
             play = false;
             ballDirX = 0;
             ballDirY = 0;
@@ -121,6 +160,7 @@ public class BrickBreaker extends JPanel implements KeyListener, ActionListener 
             if (new Rectangle(ballX, ballY, 20, 20)
                     .intersects(new Rectangle(paddleX, paddleY, 100, 8))) {
 
+                playTone(520f, 60);
                 ballDirY = -ballDirY;
             }
 
@@ -149,6 +189,7 @@ public class BrickBreaker extends JPanel implements KeyListener, ActionListener 
 
                             totalBricks--;
                             score += 5;
+                            playTone(760f, 70);
 
                             if (speedLevel < MAX_SPEED) {
 
@@ -215,6 +256,7 @@ public class BrickBreaker extends JPanel implements KeyListener, ActionListener 
 
             if (!play) {
 
+                playTone(420f, 120);
                 play = true;
 
                 ballX = 120;
@@ -227,6 +269,8 @@ public class BrickBreaker extends JPanel implements KeyListener, ActionListener 
 
                 score = 0;
                 totalBricks = 21;
+                winSoundPlayed = false;
+                gameOverSoundPlayed = false;
 
                 map = new BrickMap(3, 7);
 
